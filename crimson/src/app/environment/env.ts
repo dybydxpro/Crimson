@@ -2,6 +2,7 @@ export const Env = {
     firebaseConfig: {
         apiKey: "AIzaSyC0nHYbd8mDwU_37v-B4Vsic9RpMOrvgYs",
         authDomain: "crimson-64cec.firebaseapp.com",
+        databaseURL: "https://crimson-64cec-default-rtdb.firebaseio.com",
         projectId: "crimson-64cec",
         storageBucket: "crimson-64cec.appspot.com",
         messagingSenderId: "162314322638",

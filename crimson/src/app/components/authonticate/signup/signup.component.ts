@@ -3,20 +3,19 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
-} from '@angular/forms';
+} from "@angular/forms";
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from "@angular/router";
 import { AuthenticateService } from '../../../auth/authenticate.service';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
-import { LocalStorageService } from '../../shared/local-storage.service';
 
 @Component({
-  selector: 'app-signin',
-  templateUrl: './signin.component.html',
-  styleUrl: './signin.component.scss',
+  selector: 'app-signup',
+  templateUrl: './signup.component.html',
+  styleUrl: './signup.component.scss'
 })
-export class SigninComponent implements OnInit {
+export class SignupComponent {
   validationForm: UntypedFormGroup;
   isLoading: boolean = false;
 
@@ -26,35 +25,34 @@ export class SigninComponent implements OnInit {
     private authenticateService: AuthenticateService,
     private authService: AuthService,
     private userService: UserService,
-    private localStorageService: LocalStorageService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.validationForm = this.fb.group({
+      name: ["", [Validators.required]],
       email: [
-        '',
+        "",
         [
           Validators.required,
           Validators.email,
-          Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'),
+          Validators.pattern("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$"),
         ],
       ],
-      password: ['', [Validators.required]],
+      password: ["", [Validators.required]],
     });
   }
 
-  submitLogin(): void {
+  submitSignup(): void {
     if(!this.isLoading){
       this.isLoading = true;
+      let name: string = this.validationForm.get('name')?.value;
       let email: string = this.validationForm.get('email')?.value;
       let password: string = this.validationForm.get('password')?.value;
 
-      this.authService.signIn(email, password)
+      this.authService.signUp(email, password)
         .then((res: any) => {
-          this.localStorageService.setItem("uid", res.user.multiFactor.user.uid);
-          this.localStorageService.setItem("token", res.user.multiFactor.user.accessToken);
-          this.getUserData(res.user.multiFactor.user.uid);
+          this.saveUser(res.user.multiFactor.user.uid, name, email);
         }).catch((err: any) => {
           console.error(err);
           this.openSnackBar(err.message);
@@ -63,25 +61,25 @@ export class SigninComponent implements OnInit {
     }
   }
 
-  getUserData(uid: string): void {
-    this.userService.getUserByUid(uid).subscribe(
-      (res: any) => {
-        this.localStorageService.setItem("user", JSON.stringify(res[0]));
-        this.isLoading = false;
-        this.redirectToHome();
-      }, (err: any) => {
+  saveUser(uid: string, name: string, email: string): void {
+    let user: any = {
+      "uid": uid,
+      "name": name,
+      "email": email
+    };
+
+    this.userService.createUser(user)
+      .then((res: any) => {
+        this.redirectToLogin();
+      }).catch((err: any) => {
         console.error(err);
-        this.openSnackBar(err.message);
+      }).finally(() => {
         this.isLoading = false;
       });
   }
 
-  redirectToRegister(): void {
-    this.router.navigate(['/sign-up']);
-  }
-
-  redirectToHome(): void {
-    this.router.navigate(['/']);
+  redirectToLogin(): void {
+    this.router.navigate(["/sign-in"]);
   }
 
   openSnackBar(msg: string) {
