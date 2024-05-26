@@ -8,6 +8,7 @@ import {
 import { Observable } from "rxjs";
 import { DOCUMENT } from '@angular/common';
 
+@Injectable()
 export class AuthenticateInterceptor implements HttpInterceptor  {
   localStorage: Storage | undefined;
 

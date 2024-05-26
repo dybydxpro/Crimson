@@ -6,18 +6,19 @@ import { DOCUMENT } from '@angular/common';
 })
 export class AuthenticateService {
   localStorage: Storage | undefined;
-  token: any = "";
+  token: any;
 
   constructor(@Inject(DOCUMENT) private document: Document) { 
     this.localStorage = document.defaultView?.localStorage;
-    this.token = this.localStorage?.getItem('token') || "";
+    this.token = this.localStorage?.getItem('token') || null;
   }
 
   isLoggedIn(): boolean {
-    // const token: string = this.token;
-    // const payload = atob(token.split('.')[1] || "e30=");
-    // const parsedPayload = JSON.parse(payload);
-    // return parsedPayload.exp > Date.now() / 1000;
-    return true;
+    try { 
+      return this.token ? true : false;
+    } catch(e: any) {
+      console.error(e);
+      return false;
+    }
   }
 }
